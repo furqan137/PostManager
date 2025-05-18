@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  nextjs:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb+srv://goldeneducation786:nELPDRLW1CQbo96A@cluster0.nah9oyp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - NODE_ENV=production
+    restart: always
+
+networks:
+  default:
+    driver: bridge
