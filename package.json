@@ -2,13 +2,12 @@
   "name": "PostManager",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev -H 0.0.0.0",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "postinstall": "tailwindcss -i ./app/globals.css -o ./public/tailwind-output.css --minify || true"
-  },
+ "scripts": {
+  "dev": "next dev -H 0.0.0.0",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint"
+},
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
     "@next/swc-wasm-nodejs": "13.5.1",
