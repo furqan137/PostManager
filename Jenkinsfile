@@ -21,12 +21,15 @@ pipeline {
       }
     }
 
-    stage('Build and Deploy') {
-      steps {
-        echo '🚀 Building and starting containers...'
-        sh 'docker compose -f $COMPOSE_FILE up -d --build'
-      }
-    }
+stage('Build and Deploy') {
+  steps {
+    echo '📦 Installing Node dependencies...'
+    sh 'npm ci' // or 'npm install' if you prefer
+
+    echo '🚀 Building and starting containers...'
+    sh 'docker compose -f $COMPOSE_FILE up -d --build'
+  }
+}
 
     stage('Health Check') {
       steps {
