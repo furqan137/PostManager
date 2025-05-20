@@ -16,25 +16,14 @@ pipeline {
     stage('Stop Existing Containers') {
       steps {
         echo '🛑 Stopping existing containers (if any)...'
+        // Ignore errors if containers are not running
         sh 'docker compose -f $COMPOSE_FILE down || true'
-      }
-    }
-
-    stage('Install Node Dependencies') {
-      steps {
-        echo '📦 Installing Node dependencies inside node:18-alpine container...'
-        script {
-          // Run npm ci inside a node container, mounting current workspace
-          docker.image('node:18-alpine').inside {
-            sh 'npm ci'
-          }
-        }
       }
     }
 
     stage('Build and Deploy') {
       steps {
-        echo '🚀 Building and starting containers with Docker Compose...'
+        echo '🚀 Building and starting containers...'
         sh 'docker compose -f $COMPOSE_FILE up -d --build'
       }
     }
@@ -59,7 +48,7 @@ pipeline {
           if (!success) {
             echo "❌ App failed health check after ${maxRetries} attempts"
             echo "📝 Showing container logs to help debug:"
-            sh 'docker logs $(docker ps -q -f name=ci-webappdev-nextjs-1) || true'
+            sh 'docker logs ci-webappdev-nextjs-1 || true'
             error "Health check failed. Deployment aborted."
           }
         }
@@ -69,7 +58,7 @@ pipeline {
 
   post {
     success {
-      echo "✅ Deployment successful! App should be running at http://54.147.220.11:3000"
+      echo "✅ Deployment successful! App should be running at http://34.230.89.192:3000"
     }
     failure {
       echo "❌ Deployment failed. Please check Jenkins logs above for details."
