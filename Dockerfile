@@ -1,21 +1,23 @@
 FROM node:18-alpine
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
 # Install dependencies
-RUN npm install
+COPY package*.json ./
+RUN npm ci
 
-# Copy the rest of the application
+# Optional: update Browserslist DB
+RUN npx browserslist@latest --update-db || true
+
+# Copy the rest of the app
 COPY . .
 
-# Build the Next.js application
-RUN npm run build
-
-# Expose the port the app runs on
+# Expose port used by Next.js
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "start"]
+# Set environment
+ENV NODE_ENV=development
+
+# Start the app
+CMD ["npm", "run", "dev"]
