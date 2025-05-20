@@ -1,25 +1,24 @@
-# Use official Node.js image (Alpine for smaller size)
 FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies separately to leverage Docker cache
-COPY package.json package-lock.json ./
-RUN npm ci --legacy-peer-deps
+# Install dependencies
+COPY package*.json ./
+RUN npm ci
 
-# Optional: Update Browserslist DB, but make it non-blocking
+# Optional: update Browserslist DB
 RUN npx browserslist@latest --update-db || true
 
-# Copy application code
+# Copy the rest of the app
 COPY . .
 
-# Expose Next.js default dev port
+# Expose port used by Next.js
 EXPOSE 3000
 
-# Set environment (adjust if using production image later)
+# Set environment
 ENV NODE_ENV=development
 
-# Default command to run the development server
+# Start the app
 CMD ["npm", "run", "dev"]
 
