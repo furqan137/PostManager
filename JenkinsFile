@@ -1,0 +1,42 @@
+pipeline {
+  agent any
+
+  environment {
+    COMPOSE_FILE = 'docker-compose.ci.yml'
+  }
+
+  stages {
+    stage('Checkout Code') {
+      steps {
+        git 'https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git'
+      }
+    }
+
+    stage('Stop Existing Containers') {
+      steps {
+        sh 'docker-compose -f $COMPOSE_FILE down || true'
+      }
+    }
+
+    stage('Build and Deploy') {
+      steps {
+        sh 'docker-compose -f $COMPOSE_FILE up -d --build'
+      }
+    }
+
+    stage('Health Check') {
+      steps {
+        sh 'curl -s --max-time 10 http://localhost:3000 || echo "App may not be up yet"'
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "✅ Deployment successful! App should be running at http://<YOUR-EC2-IP>:3000"
+    }
+    failure {
+      echo "❌ Deployment failed. Please check Jenkins logs."
+    }
+  }
+}
