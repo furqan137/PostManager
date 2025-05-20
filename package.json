@@ -6,7 +6,8 @@
     "dev": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "tailwindcss -i ./app/globals.css -o ./public/tailwind-output.css --minify || true"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -71,3 +72,4 @@
     "zod": "^3.23.8"
   }
 }
+
