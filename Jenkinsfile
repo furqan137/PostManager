@@ -13,23 +13,19 @@ pipeline {
       }
     }
 
-    stage('Stop Existing Containers') {
-      steps {
-        echo '🛑 Stopping existing containers (if any)...'
-        sh '''
-          docker-compose -f $COMPOSE_FILE down || true
-        '''
-      }
-    }
+stage('Stop Existing Containers') {
+  steps {
+    echo '🛑 Stopping existing containers (if any)...'
+    sh 'docker compose -f $COMPOSE_FILE down || true'
+  }
+}
 
-    stage('Build and Deploy') {
-      steps {
-        echo '🚀 Building and starting containers...'
-        sh '''
-          docker-compose -f $COMPOSE_FILE up -d --build
-        '''
-      }
-    }
+stage('Build and Deploy') {
+  steps {
+    echo '🚀 Building and starting containers...'
+    sh 'docker compose -f $COMPOSE_FILE up -d --build'
+  }
+}
 
     stage('Health Check') {
       steps {
