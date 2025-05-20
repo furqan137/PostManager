@@ -69,7 +69,7 @@ pipeline {
 
   post {
     success {
-      echo "✅ Deployment successful! App should be running at http://54.147.220.11:8080"
+      echo "✅ Deployment successful! App should be running at http://54.147.220.11:3000"
     }
     failure {
       echo "❌ Deployment failed. Please check Jenkins logs above for details."
