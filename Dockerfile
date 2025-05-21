@@ -21,4 +21,3 @@ ENV NODE_ENV=development
 
 # Start the app
 CMD ["npm", "run", "dev"]
-
