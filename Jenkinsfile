@@ -9,7 +9,7 @@ pipeline {
   stages {
     stage('Clone') {
       steps {
-        git url: 'https://github.com/muhammadusmanahmedx/PasswordManager.git', branch: 'main'
+        git url: 'https://github.com/furqan137/PostManager.git', branch: 'main'
       }
     }
 
