@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose, { Mongoose } from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI!;
+const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
   throw new Error(
@@ -8,47 +8,38 @@ if (!MONGODB_URI) {
   );
 }
 
-// Extend globalThis to include mongoose
+// Extend global object type for caching
 declare global {
-  var mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
+  // allow global `var` declarations
+  // eslint-disable-next-line no-var
+  var _mongoose: {
+    conn: Mongoose | null;
+    promise: Promise<Mongoose> | null;
   } | undefined;
 }
 
-let cached = global.mongoose as {
-  conn: typeof mongoose | null;
-  promise: Promise<typeof mongoose> | null;
-} | undefined;
+let cached = global._mongoose;
 
 if (!cached) {
-  cached = {
-    conn: null,
-    promise: null,
-  };
-  global.mongoose = cached;
+  cached = global._mongoose = { conn: null, promise: null };
 }
 
-async function dbConnect() {
-  if (cached.conn) {
-    return cached.conn;
-  }
+async function dbConnect(): Promise<Mongoose> {
+  if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
+    cached.promise = mongoose.connect(MONGODB_URI, opts);
   }
 
   try {
     cached.conn = await cached.promise;
-  } catch (e) {
+  } catch (err) {
     cached.promise = null;
-    throw e;
+    throw err;
   }
 
   return cached.conn;
