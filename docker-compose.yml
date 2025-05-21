@@ -2,16 +2,15 @@ version: '3.8'
 
 services:
   nextjs:
-    container_name: ci-webappdev-nextjs-1
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5100:3000"  # Host port : Container port
+      - "3000:3000"
     env_file:
       - .env.local
     environment:
-      - NODE_ENV=development
+      NODE_ENV: development
     restart: always
     networks:
       - app-network
