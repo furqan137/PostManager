@@ -2,77 +2,58 @@ pipeline {
   agent any
 
   environment {
+    COMPOSE_PROJECT_NAME = 'shop-sphere-jenkins'
     COMPOSE_FILE = 'docker-compose.yaml'
-    MONGODB_URI = credentials('MONGODB_URI') // Jenkins secret
   }
 
   stages {
-    stage('Checkout Code') {
+    stage('Clone') {
       steps {
-        echo '✅ Checking out source code...'
-        checkout scm
+        git url: 'https://github.com/muhammadusmanahmedx/PasswordManager.git', branch: 'main'
       }
     }
 
-    stage('Inject Mongo URI') {
+    stage('Inject Credentials') {
+      environment {
+        MONGODB_URI = credentials('MONGODB_URI')
+        JWT_SECRET = credentials('JWT_SECRET')
+      }
       steps {
-        echo '🔐 Injecting MongoDB URI into .env.local...'
+        script {
+          writeFile file: ".env", text: """
+            MONGODB_URI=$MONGODB_URI
+            JWT_SECRET=$JWT_SECRET
+          """
+        }
+      }
+    }
+
+    stage('Clean up') {
+      steps {
         sh '''
-          echo "MONGODB_URI=${MONGODB_URI}" > .env.local
-          cat .env.local
+          docker-compose -p $COMPOSE_PROJECT_NAME -f $COMPOSE_FILE down --volumes || true
+          docker system prune -af || true
+          docker volume prune -f || true
         '''
       }
     }
 
-    stage('Stop Existing Containers') {
+    stage('Build') {
       steps {
-        echo '🛑 Stopping existing containers (if any)...'
-        sh 'docker-compose -f $COMPOSE_FILE down || true'
+        sh 'docker-compose -p $COMPOSE_PROJECT_NAME -f $COMPOSE_FILE build --no-cache'
       }
     }
 
-    stage('Build and Deploy') {
+    stage('Deploy') {
       steps {
-        echo '🚀 Building and starting containers...'
-        sh 'docker-compose -f $COMPOSE_FILE up -d --build'
-      }
-    }
-
-    stage('Health Check') {
-      steps {
-        script {
-          echo '🔍 Running health check on http://localhost:5100...'
-          def maxRetries = 12
-          def success = false
-          for (int i = 1; i <= maxRetries; i++) {
-            def response = sh(script: "curl -s --max-time 5 http://localhost:5100 || true", returnStatus: true)
-            if (response == 0) {
-              echo "✅ App is up! (Attempt ${i})"
-              success = true
-              break
-            } else {
-              echo "❌ Not up yet (Attempt ${i}). Retrying in 5 seconds..."
-              sleep 5
-            }
-          }
-          if (!success) {
-            echo "❌ App failed health check after ${maxRetries} attempts"
-            echo "📝 Showing container logs to help debug:"
-            sh 'docker logs ci-webappdev-nextjs-1 || true'
-            error "Health check failed. Deployment aborted."
-          }
-        }
+        sh 'docker-compose -p $COMPOSE_PROJECT_NAME -f $COMPOSE_FILE up -d'
       }
     }
   }
 
   post {
-    success {
-      echo "✅ Deployment successful! App should be running at http://<EC2-IP>:5100"
-    }
-    failure {
-      echo "❌ Deployment failed. Please check Jenkins logs above for details."
+    always {
+      echo '✅ Pipeline finished.'
     }
   }
 }
-
