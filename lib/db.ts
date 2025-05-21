@@ -16,10 +16,17 @@ declare global {
   } | undefined;
 }
 
-let cached = global.mongoose;
+let cached = global.mongoose as {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+} | undefined;
 
 if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
+  cached = {
+    conn: null,
+    promise: null,
+  };
+  global.mongoose = cached;
 }
 
 async function dbConnect() {
