@@ -2,8 +2,7 @@ pipeline {
   agent any
 
   environment {
-    COMPOSE_FILE = 'docker-compose.yml'
-    MONGODB_URI = credentials('MONGODB_URI') // Jenkins secret
+    COMPOSE_FILE = 'docker-compose.ci.yml'
   }
 
   stages {
@@ -14,38 +13,29 @@ pipeline {
       }
     }
 
-    stage('Inject Mongo URI') {
-      steps {
-        echo '🔐 Injecting MongoDB URI into .env.local...'
-        sh '''
-          echo "MONGODB_URI=${MONGODB_URI}" > .env.local
-          cat .env.local
-        '''
-      }
-    }
-
     stage('Stop Existing Containers') {
       steps {
         echo '🛑 Stopping existing containers (if any)...'
-        sh 'docker-compose -f $COMPOSE_FILE down || true'
+        // Ignore errors if containers are not running
+        sh 'docker compose -f $COMPOSE_FILE down || true'
       }
     }
 
     stage('Build and Deploy') {
       steps {
         echo '🚀 Building and starting containers...'
-        sh 'docker-compose -f $COMPOSE_FILE up -d --build'
+        sh 'docker compose -f $COMPOSE_FILE up -d --build'
       }
     }
 
     stage('Health Check') {
       steps {
         script {
-          echo '🔍 Running health check on http://localhost:5100...'
+          echo '🔍 Running health check on http://localhost:3000...'
           def maxRetries = 12
           def success = false
           for (int i = 1; i <= maxRetries; i++) {
-            def response = sh(script: "curl -s --max-time 5 http://localhost:5100 || true", returnStatus: true)
+            def response = sh(script: "curl -s --max-time 5 http://localhost:3000 || true", returnStatus: true)
             if (response == 0) {
               echo "✅ App is up! (Attempt ${i})"
               success = true
@@ -68,7 +58,7 @@ pipeline {
 
   post {
     success {
-      echo "✅ Deployment successful! App should be running at http://<EC2-IP>:5100"
+      echo "✅ Deployment successful! App should be running at http://34.230.89.192:3000"
     }
     failure {
       echo "❌ Deployment failed. Please check Jenkins logs above for details."
