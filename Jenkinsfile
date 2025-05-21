@@ -2,7 +2,7 @@ pipeline {
   agent any
 
   environment {
-    COMPOSE_FILE = 'docker-compose.yml'
+    COMPOSE_FILE = 'docker-compose.yaml'
     MONGODB_URI = credentials('MONGODB_URI') // Jenkins secret
   }
 
