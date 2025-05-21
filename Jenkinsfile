@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     COMPOSE_FILE = 'docker-compose.yml'
-    MONGO_URI = credentials('MONGO_URI') // Your Jenkins Credential ID
+    MONGODB_URI = credentials('MONGODB_URI') // Your Jenkins Credential ID
   }
 
   stages {
@@ -18,7 +18,7 @@ pipeline {
       steps {
         echo '🔐 Injecting MongoDB URI into .env.local...'
         sh '''
-          echo "MONGO_URI=${MONGO_URI}" > .env.local
+          echo "MONGODB_URI=${MONGODB_URI}" > .env.local
           cat .env.local
         '''
       }
