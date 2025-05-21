@@ -62,7 +62,7 @@ export default function PostDetailPage() {
         <div className="flex-1 container py-8 text-center">
           <h2 className="text-2xl font-bold">Post not found</h2>
           <p className="mt-2 text-muted-foreground">
-            The post you're looking for doesn't exist or has been removed.
+            The post you're lookin for doesn't exist or has been removed.
           </p>
           <Button className="mt-4" onClick={() => router.push('/')}>
             Back to posts
