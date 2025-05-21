@@ -2,7 +2,8 @@ pipeline {
   agent any
 
   environment {
-    COMPOSE_FILE = 'docker-compose.ci.yml'
+    COMPOSE_FILE = 'docker-compose.yml'
+    MONGO_URI = credentials('MONGO_URI') // Your Jenkins Credential ID
   }
 
   stages {
@@ -14,11 +15,8 @@ pipeline {
     }
 
     stage('Inject Mongo URI') {
-      environment {
-        MONGO_URI = credentials('MONGO_URI') // Jenkins credential ID
-      }
       steps {
-        echo '🔐 Injecting MongoDB URI into environment...'
+        echo '🔐 Injecting MongoDB URI into .env.local...'
         sh '''
           echo "MONGO_URI=${MONGO_URI}" > .env.local
           cat .env.local
@@ -35,7 +33,7 @@ pipeline {
 
     stage('Build and Deploy') {
       steps {
-        echo '🚀 Building and starting containers on port 5100...'
+        echo '🚀 Building and starting containers...'
         sh 'docker compose -f $COMPOSE_FILE up -d --build'
       }
     }
@@ -70,7 +68,7 @@ pipeline {
 
   post {
     success {
-      echo "✅ Deployment successful! App should be running at http://<EC2-PUBLIC-IP>:5100"
+      echo "✅ Deployment successful! App should be running at http://<EC2-IP>:5100"
     }
     failure {
       echo "❌ Deployment failed. Please check Jenkins logs above for details."
