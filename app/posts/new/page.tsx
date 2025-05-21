@@ -5,11 +5,11 @@ import { useState } from 'react';
 import Header from '@/components/layout/header';
 import { Heading } from '@/components/ui/heading';
 import PostForm from '@/components/posts/post-form';
-import { PostFormData } from '@/lib/types';
+import { PostFormData, Post } from '@/lib/types'; // Ensure 'Post' is imported
 
 export default function NewPostPage() {
-  const [posts, setPosts] = useState([]);
-  const { createPost } = usePostActions(setPosts);
+  const [posts, setPosts] = useState<Post[]>([]); // ✅ Specify the Post[] type
+  const { createPost } = usePostActions(setPosts); // Now the type matches
 
   const handleSubmit = async (data: PostFormData) => {
     await createPost(data);
