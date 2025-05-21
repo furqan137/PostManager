@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     COMPOSE_FILE = 'docker-compose.yml'
-    MONGODB_URI = credentials('MONGODB_URI') // Your Jenkins Credential ID
+    MONGODB_URI = credentials('MONGODB_URI') // Jenkins secret
   }
 
   stages {
@@ -27,14 +27,14 @@ pipeline {
     stage('Stop Existing Containers') {
       steps {
         echo '🛑 Stopping existing containers (if any)...'
-        sh 'docker compose -f $COMPOSE_FILE down || true'
+        sh 'docker-compose -f $COMPOSE_FILE down || true'
       }
     }
 
     stage('Build and Deploy') {
       steps {
         echo '🚀 Building and starting containers...'
-        sh 'docker compose -f $COMPOSE_FILE up -d --build'
+        sh 'docker-compose -f $COMPOSE_FILE up -d --build'
       }
     }
 
